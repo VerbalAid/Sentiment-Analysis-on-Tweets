@@ -3,6 +3,26 @@ import tweepy
 from textblob import TextBlob
 import pandas as pd
 
+name: Python CI with Conda
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout the repository
+    - name: Checkout repository
+     
+
+
 # Twitter API credentials
 API_KEY = 'your_api_key'
 API_SECRET_KEY = 'your_api_secret_key'
