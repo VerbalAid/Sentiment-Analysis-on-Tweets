@@ -1,0 +1,55 @@
+import tweepy
+from textblob import TextBlob
+import pandas as pd
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+import matplotlib.pyplot as plt
+
+# Twitter API credentials
+API_KEY = 'your_api_key'
+API_SECRET_KEY = 'your_api_secret_key'
+ACCESS_TOKEN = 'your_access_token'
+ACCESS_SECRET = 'your_access_secret'
+
+# Authenticate
+auth = tweepy.OAuthHandler(API_KEY, API_SECRET_KEY)
+auth.set_access_token(ACCESS_TOKEN, ACCESS_SECRET)
+api = tweepy.API(auth)
+
+# Set up VADER sentiment analyzer
+analyzer = SentimentIntensityAnalyzer()
+
+# Search tweets
+query = "Erasmus"  # Change this to any topic
+tweets = api.search_tweets(q=query, lang="en", count=100)  # Increased tweet count for more data
+
+# Analyze sentiment and emotion
+data = []
+for tweet in tweets:
+    analysis = TextBlob(tweet.text)
+    polarity = analysis.sentiment.polarity
+    sentiment = "Positive" if polarity > 0 else "Negative" if polarity < 0 else "Neutral"
+
+    # VADER sentiment analysis for more nuanced emotions
+    vader_scores = analyzer.polarity_scores(tweet.text)
+    sentiment_vader = "Positive" if vader_scores['compound'] > 0 else "Negative" if vader_scores['compound'] < 0 else "Neutral"
+
+    data.append([tweet.text, sentiment, sentiment_vader, vader_scores['compound']])
+
+# Save to CSV
+df = pd.DataFrame(data, columns=["Tweet", "Sentiment (TextBlob)", "Sentiment (VADER)", "VADER Compound Score"])
+df.to_csv("tweets_sentiment.csv", index=False)
+
+# Display sentiment summary (simple text count of sentiments)
+print(df["Sentiment (TextBlob)"].value_counts())
+print(df["Sentiment (VADER)"].value_counts())
+
+# Visualization (Sentiment Counts)
+sentiment_counts = df["Sentiment (TextBlob)"].value_counts()
+sentiment_counts.plot(kind='bar', color=['green', 'red', 'grey'])
+plt.title("Sentiment Analysis of Tweets")
+plt.xlabel("Sentiment")
+plt.ylabel("Count")
+plt.xticks(rotation=0)
+plt.show()
+
+print("Sentiment analysis complete. Results saved to tweets_sentiment.csv.")
