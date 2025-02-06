@@ -1,0 +1,52 @@
+import tweepy
+import pandas as pd
+import plotly.express as px
+from textblob import TextBlob
+import datetime
+
+# Twitter API credentials
+API_KEY = 'your_api_key'
+API_SECRET_KEY = 'your_api_secret_key'
+ACCESS_TOKEN = 'your_access_token'
+ACCESS_SECRET = 'your_access_secret'
+
+# Authenticate
+auth = tweepy.OAuthHandler(API_KEY, API_SECRET_KEY)
+auth.set_access_token(ACCESS_TOKEN, ACCESS_SECRET)
+api = tweepy.API(auth)
+
+# Search tweets with date filtering
+query = "Erasmus"  # Change this to any topic
+today = datetime.date.today()
+week_ago = today - datetime.timedelta(days=7)
+tweets = api.search_tweets(q=query, lang="en", since=str(week_ago), until=str(today), count=100)
+
+# Analyze sentiment
+data = []
+for tweet in tweets:
+    analysis = TextBlob(tweet.text)
+    polarity = analysis.sentiment.polarity
+    sentiment = "Positive" if polarity > 0 else "Negative" if polarity < 0 else "Neutral"
+    tweet_date = tweet.created_at.date()
+    data.append([tweet.text, sentiment, tweet_date])
+
+# Save to CSV
+df = pd.DataFrame(data, columns=["Tweet", "Sentiment", "Date"])
+df.to_csv("tweets_sentiment_trend.csv", index=False)
+
+# Convert date to datetime
+df['Date'] = pd.to_datetime(df['Date'])
+
+# Group sentiment by date
+sentiment_trend = df.groupby(['Date', 'Sentiment']).size().unstack(fill_value=0).reset_index()
+
+# Plotly interactive line chart
+fig = px.line(sentiment_trend, x='Date', y=['Positive', 'Negative', 'Neutral'],
+              title='Sentiment Trend of Tweets Over Time',
+              labels={'value': 'Tweet Count', 'Date': 'Date'},
+              markers=True)
+
+fig.update_layout(xaxis_title="Date", yaxis_title="Tweet Count", legend_title="Sentiment")
+fig.show()
+
+print("Sentiment trend analysis complete. Results saved to tweets_sentiment_trend.csv.")
