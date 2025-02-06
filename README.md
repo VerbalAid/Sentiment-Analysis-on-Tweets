@@ -1,31 +1,31 @@
-pip install tweepy textblob pandas 
-import tweepy
-from textblob import TextBlob
-import pandas as pd
+# Twitter Sentiment Analysis Tool
 
-# Twitter API credentials
-API_KEY = 'your_api_key'
-API_SECRET_KEY = 'your_api_secret_key'
-ACCESS_TOKEN = 'your_access_token'
-ACCESS_SECRET = 'your_access_secret'
+This project performs sentiment analysis on real-time tweets using the Twitter API and the TextBlob library. The analysis categorizes the sentiment of tweets into **Positive**, **Negative**, or **Neutral**. Additionally, sentiment trends are visualized over time using Plotly, providing an interactive way to explore tweet sentiment based on specific topics.
 
-# Authenticate
-auth = tweepy.OAuthHandler(API_KEY, API_SECRET_KEY)
-auth.set_access_token(ACCESS_TOKEN, ACCESS_SECRET)
-api = tweepy.API(auth)
+## Features
 
-# Search tweets
-query = "Erasmus"  # Change this to any topic
-tweets = api.search_tweets(q=query, lang="en", count=10)
+- **Real-time sentiment analysis** of tweets via the Twitter API.
+- Sentiment classification into Positive, Negative, or Neutral using TextBlob.
+- **Date filtering** to gather tweets from the past week.
+- **Interactive sentiment visualization** using Plotly for sentiment trends over time.
+- **CSV export** of tweet text and sentiment data for further analysis.
 
-# Analyze sentiment
-data = []
-for tweet in tweets:
-    analysis = TextBlob(tweet.text)
-    sentiment = "Positive" if analysis.sentiment.polarity > 0 else "Negative" if analysis.sentiment.polarity < 0 else "Neutral"
-    data.append([tweet.text, sentiment])
+## Requirements
 
-# Save to CSV
-df = pd.DataFrame(data, columns=["Tweet", "Sentiment"])
-df.to_csv("tweets_sentiment.csv", index=False)
-print("Sentiment analysis complete. Results saved to tweets_sentiment.csv.") 
+- Python 3.x
+- pip
+
+### Python Libraries
+
+To run this project, you need the following Python libraries:
+
+- `tweepy`
+- `pandas`
+- `textblob`
+- `plotly`
+- `matplotlib`
+
+Install them by running:
+
+```bash
+pip install tweepy pandas textblob plotly matplotlib
